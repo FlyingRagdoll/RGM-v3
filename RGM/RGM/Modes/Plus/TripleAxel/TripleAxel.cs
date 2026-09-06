@@ -32,6 +32,15 @@ COM-45로 인한 데미지가 77%로 하향됩니다.
         private CoroutineHandle _onModeStarted;
         private CoroutineHandle _autoWarhead;
 
+        private static readonly List<RoleTypeId> ScpRoles =
+        [
+            RoleTypeId.Scp049,
+            RoleTypeId.Scp096,
+            RoleTypeId.Scp106,
+            RoleTypeId.Scp939,
+            RoleTypeId.Scp3114
+        ];
+        
         public override void OnEnabled()
         {
             Exiled.Events.Handlers.Player.ItemAdded += OnItemAdded;
@@ -92,18 +101,7 @@ COM-45로 인한 데미지가 77%로 하향됩니다.
             if (!player.IsAlive) return;
 
             if (player.Role.Type == RoleTypeId.Scp173)
-            {
-                List<RoleTypeId> scpRoles =
-                [
-                    RoleTypeId.Scp049,
-                    RoleTypeId.Scp096,
-                    RoleTypeId.Scp106,
-                    RoleTypeId.Scp939,
-                    RoleTypeId.Scp3114
-                ];
-
-                player.Role.Set(scpRoles.GetRandomValue());
-            }
+                player.Role.Set(ScpRoles.GetRandomValue());
 
             player.ClearAmmo();
             player.AddItem(ItemType.Flashlight);
