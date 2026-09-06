@@ -8,7 +8,7 @@ using Exiled.API.Features;
 
 namespace RGM.Modes;
 
-[Mode(ModeCategory.Private, ModeInfo.Plus, ModeType.DistractedDriver)]
+[Mode(ModeCategory.OnlySub, ModeInfo.Plus, ModeType.DistractedDriver)]
 public class DistractedDriver : Mode
 {
     public override string Name => "전방주시태만";

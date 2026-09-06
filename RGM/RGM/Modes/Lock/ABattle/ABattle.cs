@@ -761,7 +761,7 @@ public class ABattle : Mode
                 Tools.PlayGlobalAudio(name, 2f);
         }
 
-        if (allowReflector && Abilities[type].Category != AbilityCategory.Ancient)
+        if (allowReflector && Abilities[type].Category != AbilityCategory.Ancient && Abilities[type].Category != AbilityCategory.Synergy)
         {
             // 추가 모드 반사경: 25% 확률로 동일 능력 추가 획득. 해당 모드의 연쇄는 최대 2회까지.
             if (CurrentExtraModes.Contains("반사경") && extraReflectorChain < 2 &&
