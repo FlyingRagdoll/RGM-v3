@@ -7,8 +7,8 @@ using UnityEngine;
 
 namespace RGM.Modes.Abilities.Epic;
 
-[Ability("점멸", "[Space + ALT]ㅣ근처 문으로 텔레포트합니다. (쿨타임 10초)",
-    AbilityCategory.Epic, AbilityType.EPIC_BLINK)]
+/*[Ability("점멸", "[Space + ALT]ㅣ근처 문으로 텔레포트합니다. (쿨타임 10초)",
+    AbilityCategory.Epic, AbilityType.EPIC_BLINK)]*/
 public class Blink : Ability
 {
     int TeleportCooldown = 0;

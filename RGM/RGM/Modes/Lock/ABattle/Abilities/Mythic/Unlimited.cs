@@ -8,8 +8,8 @@ using RGM.API.Features;
 
 namespace RGM.Modes.Abilities.Mythic;
 
-[Ability("무제한", "제한이 사라집니다. (무제한 모드와 동일)",
-    AbilityCategory.Mythic, AbilityType.MYTHIC_UNLIMITED, RoleAbility.None, true)]
+/*[Ability("무제한", "제한이 사라집니다. (무제한 모드와 동일)",
+    AbilityCategory.Mythic, AbilityType.MYTHIC_UNLIMITED, RoleAbility.None, true)]*/
 public class Unlimited : Ability
 {
     private int _tantrum;
