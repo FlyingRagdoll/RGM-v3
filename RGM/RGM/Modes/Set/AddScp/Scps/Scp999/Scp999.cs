@@ -60,7 +60,7 @@ namespace RGM.Modes.Sets.AddScp.Scps
                             player.DisableEffect(EffectType.Slowness);
                             player.EnableEffect(EffectType.MovementBoost, 20);
 
-                            target.Heal(0.1f);
+                            target.Heal(0.4f);
                         }
                         else
                         {
@@ -73,9 +73,9 @@ namespace RGM.Modes.Sets.AddScp.Scps
                         Log.Error($"Reason: {e.Message}, StackTrace: {e.StackTrace}");
                     }
 
-                    player.Heal(1f);
+                    player.Heal(2f);
 
-                    yield return Timing.WaitForOneFrame;
+                    yield return Timing.WaitForSeconds(0.1f);
                 }
             }
 
@@ -102,7 +102,7 @@ namespace RGM.Modes.Sets.AddScp.Scps
                         yield return Timing.WaitForSeconds(1);
                     }
 
-                    yield return Timing.WaitForSeconds(Random.Range(3, 101));
+                    yield return Timing.WaitForSeconds(Random.Range(9, 100));
                 }
             }
 
