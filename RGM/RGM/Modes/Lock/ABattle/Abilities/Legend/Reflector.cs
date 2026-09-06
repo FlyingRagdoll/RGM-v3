@@ -19,6 +19,7 @@ public class Reflector : Ability
             return;
 
         if (ABattle.Instance.Abilities[ev.AbilityType].Category == AbilityCategory.Ancient ||
+            ABattle.Instance.Abilities[ev.AbilityType].Category == AbilityCategory.Synergy ||
             Random.Range(1, 101) > ReflectionChance)
             return;
 

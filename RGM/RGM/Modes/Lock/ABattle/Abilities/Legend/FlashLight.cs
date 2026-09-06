@@ -48,7 +48,7 @@ public class FlashLight : Ability
                     if (target == player) continue;
                     if (!HitboxIdentity.IsEnemy(player.ReferenceHub, target.ReferenceHub)) continue;
 
-                    if (!player.IsLookingAt(target, fov: 20)) continue;
+                    if (!player.IsLookingAt(target, fov: 15)) continue;
 
                     float damage = 3f;
                     if (player.HasAbility(AbilityType.SYNERGY_REFLECTEDLIGHT))

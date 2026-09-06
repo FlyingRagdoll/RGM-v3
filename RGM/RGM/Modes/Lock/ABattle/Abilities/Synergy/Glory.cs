@@ -41,7 +41,7 @@ public class Glory : Ability
 
                     lightSource.Position = Owner.Position;
 
-                    if (!player.IsLookingAt(Owner, fov: 30)) continue;
+                    if (!player.IsLookingAt(Owner, fov: 20)) continue;
 
                     float damage = 3f;
                     if (Owner.HasAbility(AbilityType.SYNERGY_REFLECTEDLIGHT))
