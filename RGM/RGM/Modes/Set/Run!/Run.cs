@@ -17,7 +17,7 @@ using Mirror;
 
 namespace RGM.Modes
 {
-    [Mode(ModeCategory.Private, ModeInfo.Set, ModeType.RUN)]
+    [Mode(ModeCategory.Public, ModeInfo.Set, ModeType.RUN)]
     public class RUN : Mode
     {
         public override string Name => "RUN FOR YOUR LIFE";
@@ -94,7 +94,7 @@ namespace RGM.Modes
                 NetworkServer.Destroy(obj.gameObject);
         }
 
-        public IEnumerator<float> OnModeStarted()
+        private IEnumerator<float> OnModeStarted()
         {
             if (Random.Range(1, 101) <= 44)
             {
@@ -131,8 +131,8 @@ namespace RGM.Modes
             yield return Timing.WaitForSeconds(9);
 
             Timing.RunCoroutine(Loop());
-            Timing.RunCoroutine(Raser());
-            Timing.RunCoroutine(RaserCheck());
+            Timing.RunCoroutine(Laser());
+            Timing.RunCoroutine(LaserCheck());
 
             foreach (var player in PlayerManager.List)
             {
@@ -167,7 +167,7 @@ namespace RGM.Modes
             }
         }
 
-        public IEnumerator<float> Loop()
+        private IEnumerator<float> Loop()
         {
             while (!Round.IsEnded)
             {
@@ -187,21 +187,21 @@ namespace RGM.Modes
             }
         }
 
-        public IEnumerator<float> Raser()
+        private IEnumerator<float> Laser()
         {
             while (!Round.IsEnded)
             {
                 if (hellMode || Random.Range(1, 3) == 1)
                 {
-                    SchematicObject raser = ObjectSpawner.SpawnSchematic(
-                        $"Raser{Random.Range(1, 11)}",
+                    SchematicObject laser = ObjectSpawner.SpawnSchematic(
+                        $"Raser{Random.Range(1, 10)}",
                         new Vector3(finalDoor.x, finalDoor.y - 2.5f, finalDoor.z),
                         new Quaternion(0, new List<int> { 0, 180 }.GetRandomValue(), 0, 0)
                     );
 
-                    spawnedObjects.Add(raser);
+                    spawnedObjects.Add(laser);
 
-                    foreach (var block in raser.AttachedBlocks)
+                    foreach (var block in laser.AttachedBlocks)
                     {
                         if (block.name == "Oh no")
                             block.GetComponent<PrimitiveObjectToy>().NetworkMaterialColor = new Color(12.5f, 0, 0);
@@ -211,7 +211,7 @@ namespace RGM.Modes
                     {
                         while (!Round.IsEnded)
                         {
-                            raser.Position += new Vector3(hellMode ? -0.12f : -0.1f, 0, 0);
+                            laser.Position += new Vector3(hellMode ? -0.12f : -0.1f, 0, 0);
 
                             yield return Timing.WaitForOneFrame;
                         }
@@ -220,11 +220,11 @@ namespace RGM.Modes
                     Timing.RunCoroutine(enumerator());
                 }
 
-                yield return Timing.WaitForSeconds(2);
+                yield return Timing.WaitForSeconds(1);
             }
         }
 
-        public IEnumerator<float> RaserCheck()
+        private IEnumerator<float> LaserCheck()
         {
             while (!Round.IsEnded)
             {
@@ -244,7 +244,7 @@ namespace RGM.Modes
             }
         }
 
-        public void OnDied(Exiled.Events.EventArgs.Player.DiedEventArgs ev)
+        private void OnDied(Exiled.Events.EventArgs.Player.DiedEventArgs ev)
         {
             Timing.CallDelayed(Timing.WaitForOneFrame, () =>
             {
