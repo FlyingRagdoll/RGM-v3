@@ -448,7 +448,7 @@ public class ABattle : Mode
         }
     }
     
-    public static List<string> CurrentExtraModes = new();
+    public static readonly List<string> CurrentExtraModes = new();
 
     private CoroutineHandle _onModeStarted;
     private CoroutineHandle _hintCoroutine;
