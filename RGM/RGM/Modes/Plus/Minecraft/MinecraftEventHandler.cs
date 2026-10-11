@@ -21,7 +21,6 @@ namespace RGM.Modes;
 public class MinecraftEventHandler(Minecraft minecraft) 
 {
     private readonly Dictionary<Player, BlockVisual> _held = new();
-    private readonly Dictionary<ushort, BlockVisual> _dropped = new();
 
     internal void RegisterEvents()
     {
@@ -60,18 +59,33 @@ public class MinecraftEventHandler(Minecraft minecraft)
             return;
 
         var visual = new BlockVisual(minecraft.Blocks[data.Type], BlockForm.Dropped, ev.Pickup.Position);
-        visual.AttachTo(ev.Pickup.Base.transform);
-        _dropped[ev.Pickup.Serial] = visual;
+        visual.AttachTo(ev.Pickup.Transform);
     }
-
     private void OnItemAdded(ItemAddedEventArgs ev)
     {
-        // 주웠으면 땅에 있던 Dropped 제거
-        if (_dropped.TryGetValue(ev.Item.Serial, out var visual))
+        // 블록 아이템이 아니면 무시 (모드가 지급할 때는 아직 BlockSerials에 없어서 여기서 걸러짐)
+        if (!minecraft.BlockSerials.TryGetValue(ev.Item.Serial, out BlockData picked))
+            return;
+
+        BlockData owned = null;
+        foreach (var item in ev.Player.Items)
         {
-            visual.Destroy();
-            _dropped.Remove(ev.Item.Serial);
+            if (item.Serial == ev.Item.Serial)
+                continue; // 방금 들어온 자기 자신은 제외
+
+            if (minecraft.BlockSerials.TryGetValue(item.Serial, out BlockData data) && data.Type == picked.Type)
+            {
+                owned = data;
+                break;
+            }
         }
+
+        if (owned == null)
+            return; // 같은 종류가 없으면 새 스택으로 유지
+
+        owned.Count += picked.Count;                  // 개수 합치기
+        minecraft.BlockSerials.Remove(ev.Item.Serial);
+        ev.Player.RemoveItem(ev.Item);                // 방금 주운 동전 삭제
     }
 
     private void OnLeft(LeftEventArgs ev) => RemoveHeld(ev.Player);

@@ -45,7 +45,7 @@ public class BlockAttribute(
 public class BlockData
 {
     public BlockType Type { get; set; }
-    public int Count { get; set; }
+    public ushort Count { get; set; }
 }
 
 public enum BlockType
@@ -100,7 +100,9 @@ public class BlockVisual
 
     public void AttachTo(Transform parent)
     {
-        // 이미 쓰시는 귀속 방식을 그대로 넣으세요 (플레이어/픽업 공용)
+        Schematic.transform.parent = parent;
+        Schematic.transform.localPosition = Vector3.zero;
+        Schematic.transform.localRotation = Quaternion.identity;
     }
 
     public void Destroy() => Schematic?.Destroy();

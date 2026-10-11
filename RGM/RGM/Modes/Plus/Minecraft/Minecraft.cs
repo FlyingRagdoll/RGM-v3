@@ -159,7 +159,7 @@ public class Minecraft : Mode
         return World.TryGetValue(grid, out block);
     }
 
-    public void AddBlock(BlockType type, int count, Player player)
+    public void AddBlock(BlockType type, ushort count, Player player)
     {
         Item item = player.AddItem(MinecraftItemType);
         ushort ItemSerial = item.Serial;
@@ -170,6 +170,6 @@ public class Minecraft : Mode
     public void Spawned(Player player)
     {
         BlockType RandomBlockType = Tools.EnumToList<BlockType>().Where(t => t != BlockType.Air).GetRandomValue();
-        AddBlock(RandomBlockType, 32, player);
+        AddBlock(RandomBlockType, (ushort)32, player);
     }
 }
