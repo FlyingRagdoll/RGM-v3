@@ -1,25 +1,24 @@
-﻿using Exiled.API.Enums;
+﻿using AdminToys;
+using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
-using RGM.API.Features;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Exiled.API.Features.Roles;
+using Exiled.Events.EventArgs.Player;
+using InventorySystem.Items;
+using InventorySystem.Items.Firearms.ShotEvents;
+using MEC;
+using Mirror;
 using PlayerStatsSystem;
 using ProjectMER.Features;
 using ProjectMER.Features.Objects;
-using MEC;
-using UnityEngine;
-
-using static RGM.Variables.Variable;
-
 using RGM.API.DataBases;
-using Exiled.API.Features.Roles;
-using AdminToys;
-using InventorySystem.Items.Firearms.ShotEvents;
-using InventorySystem.Items;
-using Exiled.Events.EventArgs.Player;
-using Mirror;
+using RGM.API.Features;
+using RGM.Modes.Sets.AddScp.Scps;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using static RGM.Variables.Variable;
 
 namespace RGM.Donator
 {
@@ -247,6 +246,12 @@ namespace RGM.Donator
                 yield return Timing.WaitForSeconds(0.25f);
                 Lightning2.Destroy();
             }
+
+            if (kE == "Rook") 
+            {
+                SchematicObject Rook = ObjectSpawner.SpawnSchematic("RookKE", new Vector3(_pos.x, _pos.y, _pos.z), rot);
+                Timing.CallDelayed(1f, Rook.Destroy);
+            }
         }
 
         public IEnumerator<float> SpawnEffect(string sE, Player player, Vector3 _pos)
@@ -293,6 +298,7 @@ namespace RGM.Donator
                         {
                             "SCP999" => $"<size=25>{attackerFormatted}의 {Datas.KillEffectData[kE][0]}가 {targetFormatted}(을)를 꼭 안아줬습니다!</size>",
                             "Lightning" => $"<size=25>{attackerFormatted}(이)가 {targetFormatted}(을)를 {Datas.KillEffectData[kE][1]}시켰습니다!</size>",
+                            //"Rook" => $"<size=25>{attackerFormatted}(이)가 {targetFormatted}(을)를 {Datas.KillEffectData[kE][1]}시켰습니다!</size>",
 
                             _ => $"<size=25>{attackerFormatted}(이)가 {Datas.KillEffectData[kE][0]}(으)로 {targetFormatted}(을)를 {Datas.KillEffectData[kE][1]}시켰습니다!</size>"
                         };
