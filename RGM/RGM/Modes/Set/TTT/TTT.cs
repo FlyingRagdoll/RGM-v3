@@ -5,6 +5,7 @@ using Exiled.API.Features;
 using MEC;
 using UnityEngine;
 using RGM.API.Features;
+using RGM.Modes.TTTRoles;
 
 using PlayerRoles;
 using RGM.API.DataBases;
@@ -50,7 +51,7 @@ Trouble in Terrorist Town의 약자.
 @vasileii, @sleeplessbutter
 """;
 
-        private bool _isStarted;
+        public bool _isTTTStarted;
         private Player _detective;
         private Player _o5;
         private Player _jester;
@@ -58,8 +59,26 @@ Trouble in Terrorist Town의 약자.
         private List<Player> _soulMates = [];
         private List<Player> _innocentRewardTargets = [];
         private List<Player> _instantKillCooldown = [];
+        public Dictionary<Player, TttRole> _playerRoles = new Dictionary<Player, TttRole>();
+        public Dictionary<TttRoleType, string> _teamRankColors = new Dictionary<TttRoleType, string>(){
+            { TttRoleType.Innocent, "orange" },
+            { TttRoleType.Detective, "cyan" },
+            { TttRoleType.Soulmate, "pink" },
+            { TttRoleType.Traitor, "red" },
+            { TttRoleType.Jester, "pink" },
+            { TttRoleType.O5, "brown" }
+        };
 
-        private readonly List<ItemType> _primary =
+        public Dictionary<TttRoleType, string> _teamColors = new Dictionary<TttRoleType, string>(){
+            { TttRoleType.Innocent, RoleTypeId.ClassD.GetColor().ToHex() },
+            { TttRoleType.Detective, "#2ECCFA" },
+            { TttRoleType.Soulmate, "#c753d9" },
+            { TttRoleType.Traitor, "red" },
+            { TttRoleType.Jester, "#f178fc" },
+            { TttRoleType.O5, "#000000" }
+        };
+
+        public readonly List<ItemType> _tttprimary =
         [
             ItemType.GunAK,
             ItemType.GunShotgun,
@@ -68,7 +87,7 @@ Trouble in Terrorist Town의 약자.
             ItemType.GunFRMG0
         ];
 
-        private readonly List<ItemType> _secondary =
+        public readonly List<ItemType> _tttsecondary =
         [
             ItemType.GunRevolver,
             ItemType.GunCOM18,
@@ -85,7 +104,6 @@ Trouble in Terrorist Town의 약자.
 
             Exiled.Events.Handlers.Server.RoundEnded += OnRoundEnded;
 
-            Exiled.Events.Handlers.Player.Shooting += OnShooting;
             Exiled.Events.Handlers.Player.Shot += OnShot;
             Exiled.Events.Handlers.Player.TogglingNoClip += OnTogglingNoClip;
             Exiled.Events.Handlers.Player.Died += OnDied;
@@ -97,7 +115,6 @@ Trouble in Terrorist Town의 약자.
         {
             Exiled.Events.Handlers.Server.RoundEnded -= OnRoundEnded;
 
-            Exiled.Events.Handlers.Player.Shooting -= OnShooting;
             Exiled.Events.Handlers.Player.Shot -= OnShot;
             Exiled.Events.Handlers.Player.TogglingNoClip -= OnTogglingNoClip;
             Exiled.Events.Handlers.Player.Died -= OnDied;
@@ -110,8 +127,8 @@ Trouble in Terrorist Town의 약자.
             GodModePlayers.Add(player);
 
             player.Role.Set(RoleTypeId.ClassD);
-            player.AddItem(_primary.GetRandomValue());
-            player.AddItem(_secondary.GetRandomValue());
+            player.AddItem(_tttprimary.GetRandomValue());
+            player.AddItem(_tttsecondary.GetRandomValue());
             player.Position = Tools.GetObjectList("Spot Random").GetRandomValue().position;
             switch (Convert.ToByte(Random.Range(1, 101)))
             {
@@ -170,7 +187,6 @@ Trouble in Terrorist Town의 약자.
             }
 
             Timing.RunCoroutine(Timer());
-            Timing.RunCoroutine(FindLocate());
 
             foreach (var player in PlayerManager.List.Where(x => x.IsDead))
             {
@@ -229,21 +245,7 @@ Trouble in Terrorist Town의 약자.
                 _o5 = PlayerManager.List.Where(x => !_traitors.Contains(x) && !_soulMates.Contains(x) && _jester != x).GetRandomValue();
             }
 
-            _detective = PlayerManager.List.Where(x => !_traitors.Contains(x) && !_soulMates.Contains(x) && _jester != x && _o5 != x).GetRandomValue();
-            _detective.Role.Set(RoleTypeId.FacilityGuard, RoleSpawnFlags.None);
-            _detective.RankName = "탐정";
-            _detective.RankColor = "cyan";
             _innocentRewardTargets.Add(_detective);
-            foreach (var item in new List<ItemType>
-            {
-                ItemType.ArmorCombat,
-                ItemType.Painkillers,
-                ItemType.Adrenaline,
-                ItemType.Medkit
-            })
-            {
-                _detective.AddItem(item);
-            }
 
             foreach (var player in PlayerManager.List)
             {
@@ -269,16 +271,16 @@ Trouble in Terrorist Town의 약자.
                 }
                 else if (player == _jester)
                 {
-                    player.AddHint("TTT 광대", $"당신은 <color=#f178fc>광대</color>입니다. 사망하기 전까지 공격할 수 없으며,\n<color={RoleTypeId.ClassD.GetColor().ToHex()}>무죄인</color>에게 사망할 경우 1번 부활하고, 모두가 당신의 정체에 대해 알게 됩니다.", 20);
+                    player.AddHint("TTT 광대", $"당신은 <color={_teamColors[TttRoleType.Jester]}>광대</color>입니다. 사망하기 전까지 공격할 수 없으며,\n<color={RoleTypeId.ClassD.GetColor().ToHex()}>무죄인</color>에게 사망할 경우 1번 부활하고, 모두가 당신의 정체에 대해 알게 됩니다.", 20);
                 }
                 else
                 {
                     _innocentRewardTargets.Add(player);
-                    player.AddHint("TTT 무죄인", $"당신은 <color={RoleTypeId.ClassD.GetColor().ToHex()}>무죄인</color>입니다. <color=#2ECCFA>탐정</color>과 함께 <color=red>배신자</color>들을 처단하세요.", 20);
+                    player.AddHint("TTT 무죄인", $"당신은 <color={_teamColors[TttRoleType.Innocent]}>무죄인</color>입니다. <color={_teamColors[TttRoleType.Detective]}>탐정</color>과 함께 <color={_teamColors[TttRoleType.Traitor]}>배신자</color>들을 처단하세요.", 20);
                 }
             }
 
-            _isStarted = true;
+            _isTTTStarted = true;
         }
 
         private IEnumerator<float> Timer()
@@ -346,85 +348,15 @@ Trouble in Terrorist Town의 약자.
             }
         }
 
-        private IEnumerator<float> FindLocate()
-        {
-            while (!Round.IsEnded)
-            {
-                foreach (var traitor in _traitors.Where(x => x.IsAlive))
-                {
-                    if (traitor.TryGetLookPlayer(30, out Player t, out RaycastHit? hit))
-                    {
-                        if (_traitors.Contains(t))
-                            traitor.AddHint("TTT 배신자 확인", $"그는 당신의 동료, 같은 <color=red>배신자</color>입니다.", 1.05f);
-
-                        else if (t == _jester)
-                            traitor.AddHint("TTT 광대 확인", $"그는 <color=#f178fc>광대</color>입니다.", 1.05f);
-
-                        else if (t == _o5)
-                            traitor.AddHint("TTT O5 평의회 확인", $"그는 <color=#000000>O5 평의회</color>입니다.", 1.05f);
-
-                        else
-                            traitor.AddHint("TTT 무죄인 확인", $"[ALT]ㅣ해당 <color={RoleTypeId.ClassD.GetColor().ToHex()}>무죄인</color>을 일격에 즉사시키십시오.", 1.05f);
-                    }
-                    else if (traitor.TryGetNearestPlayer(out Player nearestPlayer, out float radius, Player.List.Where(_traitors.Contains).ToList()))
-                        traitor.AddHint("TTT 생존자 거리 확인", $"<b>[ <color={nearestPlayer.Role.Color.ToHex()}>{Trans.Role[nearestPlayer.Role.Type]}</color>, 거리: {radius:F1}m ]</b>", 1.05f);
-
-                    else
-                        traitor.AddHint("TTT 배신자 임무 완수", "당신은 임무를 완수하였습니다.", 1.05f);
-                }
-
-                foreach (var soulMate in _soulMates.Where(x => x.IsAlive))
-                {
-                    if (_soulMates.Count == 2)
-                    {
-                        Player s = _soulMates.FirstOrDefault(x => x != soulMate);
-                        soulMate.AddHint("TTT 소울메이트", $"당신의 짝은 {s.DisplayNickname}({(int)Vector3.Distance(s.Position, soulMate.Position)}m)입니다.", 1.05f);
-                    }
-                    else
-                        soulMate.AddHint("TTT 소울메이트", $"당신의 짝은 사망했습니다!", 1.05f);
-                }
-
-                yield return Timing.WaitForSeconds(1f);
-            }
-        }
-
         private void OnRoundEnded(RoundEndedEventArgs ev)
         {
             foreach (var player in PlayerManager.List)
             {
-                if (_traitors.Contains(player))
+                if (_playerRoles.TryGetValue(player, out var playerRole))
                 {
-                    player.RankName = "배신자";
-                    player.RankColor = "red";
+                    player.RankName = playerRole.Name;
+                    player.RankColor = $"{_teamRankColors[playerRole.RoleType]}";
                 }
-                else if (_soulMates.Contains(player))
-                {
-                    player.RankName = "소울메이트";
-                    player.RankColor = "pink";
-                }
-                else if (player == _o5)
-                {
-                    player.RankName = "O5 평의회";
-                    player.RankColor = "brown";
-                }
-                else if (player == _jester)
-                {
-                    player.RankName = "광대";
-                    player.RankColor = "pink";
-                }
-                else if (player != _detective)
-                {
-                    player.RankName = "무죄인";
-                    player.RankColor = "orange";
-                }
-            }
-        }
-
-        private void OnShooting(ShootingEventArgs ev)
-        {
-            if (ev.Player == _jester && ev.Player.RankName != "광대")
-            {
-                ev.IsAllowed = false;
             }
         }
 
@@ -436,48 +368,13 @@ Trouble in Terrorist Town의 약자.
         private void OnTogglingNoClip(TogglingNoClipEventArgs ev)
         {
             ev.Player.Grab();
-
-            if (_instantKillCooldown.Contains(ev.Player)) return;
-            if (!ev.Player.TryGetLookPlayer(3, out Player t, out RaycastHit? hit)) return;
-            if (!_traitors.Contains(ev.Player) || _traitors.Contains(t)) return;
-            if (GodModePlayers.Contains(t))
-                GodModePlayers.Remove(t);
-
-            t.Hit(ev.Player, ev.Player.MaxHealth);
-            ev.Player.ShowHitMarker();
-
-            _instantKillCooldown.Add(ev.Player);
-
-            Timing.CallDelayed(10, () =>
-            {
-                _instantKillCooldown.Remove(ev.Player);
-            });
         }
 
         private void OnDied(DiedEventArgs ev)
         {
-            if (Round.IsEnded || !_isStarted)
+            if (Round.IsEnded || !_isTTTStarted)
                 return;
 
-            if (ev.Attacker != null)
-            {
-                if (!(ev.Attacker == _o5 || ev.Attacker == _jester))
-                {
-                    if (ev.Attacker != _detective && !_traitors.Contains(ev.Attacker))
-                    {
-                        if (ev.Player != _detective && !_traitors.Contains(ev.Player) && ev.Player != _jester && ev.Player != _o5)
-                        {
-                            ev.Attacker.Hurt(50, "같은 무죄인을 죽이는 실수를 범해서는 안됐습니다.");
-                        }
-                    }
-                }
-            }
-
-            if (_traitors.Contains(ev.Player))
-            {
-                ev.Player.RankName = "배신자";
-                ev.Player.RankColor = "red";
-            }
             else if (_soulMates.Contains(ev.Player))
             {
                 ev.Player.RankName = "소울메이트";
@@ -489,45 +386,6 @@ Trouble in Terrorist Town의 약자.
             {
                 ev.Player.RankName = "O5 평의회";
                 ev.Player.RankColor = "brown";
-            }
-            else if (ev.Player == _jester && ev.Player.RankName != "광대")
-            {
-                ev.Player.RankName = "광대";
-                ev.Player.RankColor = "pink";
-
-                if (ev.Attacker != null && !(_traitors.Contains(ev.Attacker) || ev.Attacker == _o5))
-                {
-                    Timing.CallDelayed(3, () =>
-                    {
-                        ev.Player.Role.Set(RoleTypeId.Scientist, RoleSpawnFlags.None);
-                        ev.Player.AddItem(_primary.GetRandomValue());
-                        ev.Player.AddItem(_secondary.GetRandomValue());
-                        ev.Player.Position = Tools.GetObjectList("Spot Random").GetRandomValue().position;
-                        switch (Convert.ToByte(Random.Range(1, 101)))
-                        {
-                            case 1:
-                                ev.Player.AddCandy(CandyKindID.Pink);
-                                break;
-
-                            case >= 2 and <= 16:
-                                ev.Player.AddItem(ItemType.GrenadeHE);
-                                break;
-
-                            case >= 17 and <= 33:
-                                ev.Player.AddItem(ItemType.Painkillers);
-                                break;
-                            
-                            case >= 34 and <= 50:
-                                ev.Player.AddItem(ItemType.Medkit);
-                                break;
-                        }
-                    });
-                }
-            }
-            else if (ev.Player != _detective)
-            {
-                ev.Player.RankName = "무죄인";
-                ev.Player.RankColor = "orange";
             }
 
             if (_traitors.Count(x => x.IsAlive) == 0 && !PlayerManager.List.Any(x => (x == _o5 || x == _jester) && x.IsAlive))
@@ -575,5 +433,36 @@ Trouble in Terrorist Town의 약자.
                 Timing.RunCoroutine(Tools.SetWinner(PlayerManager.List.Where(_traitors.Contains).ToList(), 4));
             }
         }
+
+        public int GetTraitorCount(int count) => count switch
+        {
+            >= 2 and <= 5 => 1,
+            >= 6 and <= 12 => 2,
+            >= 13 and <= 19 => 3,
+            >= 20 and <= 26 => 4,
+            >= 27 and <= 30 => 5,
+            _ => 6
+        };
+
+        public int GetInnocentRoleCount(int count) => count switch
+        {
+            >= 2 and <= 5 => 1,
+            >= 6 and <= 12 => 3,
+            >= 13 and <= 19 => 4,
+            >= 20 and <= 26 => 5,
+            >= 27 and <= 30 => 7,
+            _ => 8
+        };
+
+        public int GetNeutralRoleCount(int count) => count switch
+        {
+            >= 2 and <= 5 => 0,
+            >= 6 and <= 19=> 1,
+            >= 20 and <= 30 => 2,
+            _ => 3
+        };
     }
 }
+
+//내기 전에 체크해야되는거
+

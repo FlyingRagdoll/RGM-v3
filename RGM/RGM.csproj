@@ -844,7 +844,14 @@
     <Compile Include="RGM\Modes\Set\Tomb\Tomb.cs" />
     <Compile Include="RGM\Modes\Plus\TrickorTreat\TrickorTreat.cs" />
     <Compile Include="RGM\Modes\Plus\Unlimited\Unlimited.cs" />
+    <Compile Include="RGM\Modes\Set\TTT\Roles\Innocents\Detective.cs" />
+    <Compile Include="RGM\Modes\Set\TTT\Roles\Innocents\Innocent.cs" />
+    <Compile Include="RGM\Modes\Set\TTT\Roles\Innocents\Soulmate.cs" />
+    <Compile Include="RGM\Modes\Set\TTT\Roles\Neutral\Jester.cs" />
+    <Compile Include="RGM\Modes\Set\TTT\Roles\Neutral\O5.cs" />
+    <Compile Include="RGM\Modes\Set\TTT\Roles\Traitor\Traitor.cs" />
     <Compile Include="RGM\Modes\Set\TTT\TTT.cs" />
+    <Compile Include="RGM\Modes\Set\TTT\TTTrole.cs" />
     <Compile Include="RGM\Modes\Set\WhereamI\WhereamI.cs" />
     <Compile Include="RGM\Modes\Set\WhoamI1\WhoamI1.cs" />
     <Compile Include="Plugin.cs" />
@@ -1035,7 +1042,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="RGM\Commands\RemoteAdminCommands\AdminFeatures\PlayerManages\" />
-    <Folder Include="RGM\Modes\Set\TTT\Roles\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
